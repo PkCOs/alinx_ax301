@@ -1,5 +1,5 @@
 -- ***************************************************************************
- -- * File:        uart_rx.vhd
+ -- * File:        uart_tx.vhd
  -- * Created on:  03 Sep 2020
  -- * Author:      Yan Zong
  -- * Web:		   zongyan.info
@@ -19,7 +19,7 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
-entity uart_rx is 
+entity uart_tx is 
 	generic (
 		clk_freq	: natural := 50; -- unit: MHz
 		baud_rate	: natural := 115200
@@ -27,35 +27,33 @@ entity uart_rx is
 	port (
 		clk			: in std_logic := '0';
 		rst			: in std_logic := '0';
-		data_in		: in std_logic := '0';
-		datain_ready: in std_logic := '0';
+		data_in		: in std_logic_vector (7 downto 0) := (others => '0');
+		data_in_vld	: in std_logic := '0';
 		
-		data_out_vld: out std_logic := '0';
-		data_out	: out std_logic_vector (7 downto 0) := (others => '0');
+		dataout_ready: out std_logic := '0';
+		data_out	: out std_logic := '0';
 		);
-end entity uart_rx;
+end entity uart_tx;
 
-architecture rtl of uart_rx is 
+architecture rtl of uart_tx is 
 
 -- the number of cycles for each bit.
 constant CLK_CYCLE := natural := clk_freq * 1000000 / baud_rate;
 
 signal clk_cnt, bit_cnt : unsigned(15 downto 0) := (others => '0');
-signal rx_bits : std_logic_vector (7 downto 1) := (others => '0');
-signal data_out_vld_i := std_logic := '0';
 
-type RX_STATE_T is (RX_IDLE, RX_START, RX_REC_DATA, RX_STOP, RX_DATA);
-signal rx_state : RX_STATE_T := RX_IDLE;
+type TX_STATE_T is (TX_IDLE, TX_START, TX_SEND_DATA, RX_STOP);
+signal tx_state : TX_STATE_T := TX_IDLE;
 
 begin 
 
-	-- clk_cnt only increases in the 'RX_REC_DATA' state.
-	p_clock_count: process (clk, rst, rx_state)
+	-- clk_cnt only increases in the 'TX_SEND_DATA' state.
+	p_clock_count: process (clk, rst, tx_state)
 		begin
 			if rising_edge(clk) then 
 				if rst = '0' then 
 					clk_cnt <= (others => '0');
-				elsif ((rx_state = RX_REC_DATA) and (clk_cnt = CLK_CYCLE - 1)) or (rx_state /= RX_REC_DATA) then 
+				elsif ((tx_state = TX_SEND_DATA) and (clk_cnt = CLK_CYCLE - 1)) or (tx_state /= TX_REC_DATA) then 
 					clk_cnt <= (others => '0');
 				else
 					clk_cnt <= clk_cnt + 1;
@@ -63,13 +61,13 @@ begin
 			end if;
 	end process;
 	
-	-- bit_cnt only increases in the 'RX_REC_DATA' state.
-	p_bit_count: process (clk, rst, rx_state)
+	-- bit_cnt only increases in the 'TX_REC_DATA' state.
+	p_bit_count: process (clk, rst, tx_state)
 		begin
 			if rising_edge(clk) then 
 				if rst = '0' then 
 					bit_cnt <= (others => '0');
-				elsif (rx_state = RX_REC_DATA) and (clk_cnt = CLK_CYCLE - 1) then 
+				elsif (tx_state = TX_SEND_DATA) and (clk_cnt = CLK_CYCLE - 1) then 
 					bit_cnt <= bit_cnt + 1;
 				else
 					bit_cnt <= (others => '0');
@@ -77,75 +75,75 @@ begin
 			end if;
 	end process;
 
-	p_state: process (rst, clk, data_in, clk_cnt, bit_cnt)
+	p_state: process (rst, clk, data_in_vld, clk_cnt, bit_cnt)
 		begin
 			if rst = '0' then 
-				rx_state <= RX_IDLE;
+				tx_state <= TX_IDLE;
 			elsif rising_edge(clk) then 
-				case rx_state is 
-					when RX_IDLE => 
-						if falling_edge(data_in) then 
-							rx_state <= RX_START;
+				case tx_state is 
+					when TX_IDLE => 
+						if data_in_vld = '1' then  
+							tx_state <= TX_START;
 						else
-							rx_state <= RX_IDLE;
+							tx_state <= TX_IDLE;
 						end if;
-					when RX_START =>
+					when TX_START =>
 						if clk_cnt = CLK_CYCLE - 1 then 
-							rx_state <= RX_REC_DATA;
+							tx_state <= TX_SEND_DATA;
 						else
-							rx_state <= RX_START;
+							tx_state <= TX_START;
 						end if;
-					when RX_REC_DATA => 
+					when TX_SEND_DATA => 
 						if ((clk_cnt = CLK_CYCLE - 1) and (bit_cnt = 7)) then 
-							rx_state <= RX_STOP;
+							tx_state <= TX_STOP;
 						else 
-							rx_state <= RX_REC_DATA;
+							tx_state <= TX_SEND_DATA;
 						end if;
-					when RX_STOP => 
-						if clk_cnt = CLK_CYCLE/2 - 1 then
-							rx_state <= RX_DATA;
+					when TX_STOP => 
+						if clk_cnt = CLK_CYCLE - 1 then
+							tx_state <= TX_IDLE;
 						else
-							rx_state <= RX_STOP;
-						end if;
-					when RX_DATA => 
-						if datain_ready = '1' then -- receiving data completes
-							rx_state <= RX_IDLE;
-						else
-							rx_state <= RX_DATA;
+							tx_state <= TX_STOP;
 						end if;
 					when others =>
-						rx_state <= RX_IDLE;		
+						tx_state <= TX_IDLE;		
 				end case;
 			end if;
 	end process;
 	
-	p_data: process (clk, rst, rx_state, clk_cnt)
+	p_data: process (clk, rst, tx_state, clk_cnt)
 		begin
 			if rst = '0' then 
-				rx_bits <= (others => '0');
+				data_out <= '1';
 			elsif rising_edge(clk) then 
-				if (rx_state = RX_REC_DATA) and (clk_cnt = CLK_CYCLE/2 - 1) then 
-					rx_bits(bit_cnt) <= data_in;
-				else
-					rx_bits <= rx_bits;
-				end if;
+				case tx_state is
+					when TX_IDLE => 
+						data_out <= '1';
+					when TX_START => 
+						data_out <= '0';
+					when TX_SEND_DATA => 
+						data_out <= data_in(bit_cnt);
+					when TX_STOP => 
+						data_out <= '1';
+					when others 	
+						data_out <= '1';
+				end case;
 			end if;
 	end process;
 	
-	p_vld_sig: process (rst, clk, rx_state)
+	p_vld_sig: process (rst, clk, tx_state)
 		begin 
 			if rst = '0' then 
-				data_out_vld_i <= '0';
+				dataout_ready <= '0';
 			elsif rising_edge(clk) then 
-				if rx_state = RX_STOP then 
-					data_out_vld_i <= '1';
-				elsif (rx_state = S_DATA && datain_ready = '1')
-					data_out_vld_i <= '0';
+				if (tx_state = TX_IDLE and data_in_vld = '1')
+					dataout_ready <= '1';
+				elsif (tx_state = TX_STOP and clk_cnt = CLK_CYCLE - 1) then 
+					dataout_ready <= '1';
+				else 
+					dataout_ready <= '0';
 				end if;				
 			end if;
 	end process;
-	
-	data_out_vld <= data_out_vld_i;
-	data_out <= rx_bits;
 
 end architecture rtl;
