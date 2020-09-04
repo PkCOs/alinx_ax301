@@ -31,32 +31,32 @@ entity uart_rx is
 		datain_ready: in std_logic := '0';
 		
 		data_out_vld: out std_logic := '0';
-		data_out	: out std_logic_vector (7 downto 0) := (others => '0');
+		data_out	: out std_logic_vector (7 downto 0) := (others => '0')
 		);
 end entity uart_rx;
 
 architecture rtl of uart_rx is 
 
 -- the number of cycles for each bit.
-constant CLK_CYCLE := natural := clk_freq * 1000000 / baud_rate;
+constant CLK_CYCLE : natural := clk_freq * 1000000 / baud_rate;
 
-signal clk_cnt, bit_cnt : unsigned(15 downto 0) := (others => '0');
-signal rx_bits : std_logic_vector (7 downto 1) := (others => '0');
-signal data_out_vld_i := std_logic := '0';
+signal clk_cnt, bit_cnt : integer := 0;
+signal rx_bits : std_logic_vector (7 downto 0) := (others => '0');
+signal data_out_vld_i : std_logic := '0';
 
 type RX_STATE_T is (RX_IDLE, RX_START, RX_REC_DATA, RX_STOP, RX_DATA);
 signal rx_state : RX_STATE_T := RX_IDLE;
 
 begin 
 
-	-- clk_cnt only increases in the 'RX_REC_DATA' state.
-	p_clock_count: process (clk, rst, rx_state)
+	-- clk_cnt always increases and resets.
+	p_clock_count: process (clk, rst)
 		begin
 			if rising_edge(clk) then 
 				if rst = '0' then 
-					clk_cnt <= (others => '0');
-				elsif ((rx_state = RX_REC_DATA) and (clk_cnt = CLK_CYCLE - 1)) or (rx_state /= RX_REC_DATA) then 
-					clk_cnt <= (others => '0');
+					clk_cnt <= 0;
+				elsif clk_cnt = CLK_CYCLE - 1 then 
+					clk_cnt <= 0;
 				else
 					clk_cnt <= clk_cnt + 1;
 				end if;
@@ -68,12 +68,16 @@ begin
 		begin
 			if rising_edge(clk) then 
 				if rst = '0' then 
-					bit_cnt <= (others => '0');
-				elsif (rx_state = RX_REC_DATA) and (clk_cnt = CLK_CYCLE - 1) then 
-					bit_cnt <= bit_cnt + 1;
-				else
-					bit_cnt <= (others => '0');
-				end if;		
+					bit_cnt <= 0;
+				elsif rx_state = RX_REC_DATA then 
+					if clk_cnt = CLK_CYCLE - 1 then 
+						bit_cnt <= bit_cnt + 1;
+					else
+						bit_cnt <= bit_cnt;
+					end if;
+				else 
+					bit_cnt <= 0;
+				end if; 
 			end if;
 	end process;
 
@@ -84,7 +88,7 @@ begin
 			elsif rising_edge(clk) then 
 				case rx_state is 
 					when RX_IDLE => 
-						if falling_edge(data_in) then 
+						if datain_ready = '1' then
 							rx_state <= RX_START;
 						else
 							rx_state <= RX_IDLE;
@@ -139,7 +143,9 @@ begin
 			elsif rising_edge(clk) then 
 				if rx_state = RX_STOP then 
 					data_out_vld_i <= '1';
-				elsif (rx_state = S_DATA && datain_ready = '1')
+				elsif rx_state = RX_DATA and datain_ready = '1' then 
+					data_out_vld_i <= '0';
+				else 
 					data_out_vld_i <= '0';
 				end if;				
 			end if;

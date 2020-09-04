@@ -75,6 +75,17 @@ begin
 			data_out		=> tx_data_out 
 		);
 		
+	dut_uart_rx : entity work.uart_rx
+		port map (
+			clk				=> clk,
+			rst				=> rst,
+			data_in			=> tx_data_out,
+			datain_ready	=> tx_data_out_ready,
+			
+			data_out_vld	=> rx_data_out_vld,
+			data_out		=> rx_data_out
+		);		
+		
 	p_clk : process
 	   begin
 		   wait for 20 ns; clk <= '1';
