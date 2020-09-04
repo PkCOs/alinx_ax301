@@ -26,51 +26,55 @@ entity uart_tx is
 		);
 	port (
 		clk			: in std_logic := '0';
-		rst			: in std_logic := '0';
+		rst			: in std_logic := '0';	-- active low
 		data_in		: in std_logic_vector (7 downto 0) := (others => '0');
-		data_in_vld	: in std_logic := '0';
+		data_in_vld	: in std_logic := '0';	-- high from start byte to stop byte
 		
-		dataout_ready: out std_logic := '0';
-		data_out	: out std_logic := '0';
+		dataout_ready: out std_logic := '0';	-- only high for one clock cycle, and before start bit
+		data_out	: out std_logic := '0'
 		);
 end entity uart_tx;
 
 architecture rtl of uart_tx is 
 
 -- the number of cycles for each bit.
-constant CLK_CYCLE := natural := clk_freq * 1000000 / baud_rate;
+constant CLK_CYCLE : natural := clk_freq * 1000000 / baud_rate;
 
-signal clk_cnt, bit_cnt : unsigned(15 downto 0) := (others => '0');
+signal clk_cnt, bit_cnt : integer := 0;
 
-type TX_STATE_T is (TX_IDLE, TX_START, TX_SEND_DATA, RX_STOP);
+type TX_STATE_T is (TX_IDLE, TX_START, TX_SEND_DATA, TX_STOP);
 signal tx_state : TX_STATE_T := TX_IDLE;
 
 begin 
 
 	-- clk_cnt only increases in the 'TX_SEND_DATA' state.
-	p_clock_count: process (clk, rst, tx_state)
+	p_clock_count: process (clk, rst)
 		begin
 			if rising_edge(clk) then 
 				if rst = '0' then 
-					clk_cnt <= (others => '0');
-				elsif ((tx_state = TX_SEND_DATA) and (clk_cnt = CLK_CYCLE - 1)) or (tx_state /= TX_REC_DATA) then 
-					clk_cnt <= (others => '0');
+					clk_cnt <= 0;
+				elsif clk_cnt = CLK_CYCLE - 1 then 
+					clk_cnt <= 0;
 				else
 					clk_cnt <= clk_cnt + 1;
 				end if;
 			end if;
 	end process;
 	
-	-- bit_cnt only increases in the 'TX_REC_DATA' state.
+	-- bit_cnt only increases in the 'TX_SEND_DATA' state.
 	p_bit_count: process (clk, rst, tx_state)
 		begin
 			if rising_edge(clk) then 
 				if rst = '0' then 
-					bit_cnt <= (others => '0');
-				elsif (tx_state = TX_SEND_DATA) and (clk_cnt = CLK_CYCLE - 1) then 
-					bit_cnt <= bit_cnt + 1;
-				else
-					bit_cnt <= (others => '0');
+					bit_cnt <= 0;
+				elsif tx_state = TX_SEND_DATA then 
+					if clk_cnt = CLK_CYCLE - 1 then  
+						bit_cnt <= bit_cnt + 1;
+					else 
+						bit_cnt <= bit_cnt;
+					end if;
+				else 
+					bit_cnt <= 0;
 				end if;		
 			end if;
 	end process;
@@ -111,6 +115,7 @@ begin
 			end if;
 	end process;
 	
+	-- sending the data out
 	p_data: process (clk, rst, tx_state, clk_cnt)
 		begin
 			if rst = '0' then 
@@ -125,18 +130,18 @@ begin
 						data_out <= data_in(bit_cnt);
 					when TX_STOP => 
 						data_out <= '1';
-					when others 	
+					when others =>	
 						data_out <= '1';
 				end case;
 			end if;
 	end process;
 	
-	p_vld_sig: process (rst, clk, tx_state)
+	p_ready_sig: process (rst, clk, tx_state)
 		begin 
 			if rst = '0' then 
 				dataout_ready <= '0';
 			elsif rising_edge(clk) then 
-				if (tx_state = TX_IDLE and data_in_vld = '1')
+				if (tx_state = TX_IDLE and data_in_vld = '1') then 
 					dataout_ready <= '1';
 				elsif (tx_state = TX_STOP and clk_cnt = CLK_CYCLE - 1) then 
 					dataout_ready <= '1';
