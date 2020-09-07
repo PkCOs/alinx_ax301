@@ -1,0 +1,5 @@
+1. In the uart_wrapper, I only realise the transmission of UART. I cannot realise both reception and transmission at the same time. However, this could be fixed by draw a state machine.
+2. Both Tx and Rx are verified on the modelsim.
+3. In addition, I am still confused with the (signal latch) timing issue. This may be solved by going through the VHDL book. 
+
+Overall, I understand how to use use the state machine write the VHDL code of communication protocol.
