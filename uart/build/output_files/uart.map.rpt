@@ -1,5 +1,5 @@
 Analysis & Synthesis report for uart
-Mon Sep 07 11:50:49 2020
+Mon Sep 07 12:26:58 2020
 Quartus Prime Version 17.1.0 Build 590 10/25/2017 SJ Lite Edition
 
 
@@ -13,19 +13,20 @@ Quartus Prime Version 17.1.0 Build 590 10/25/2017 SJ Lite Edition
   5. Analysis & Synthesis Source Files Read
   6. Analysis & Synthesis Resource Usage Summary
   7. Analysis & Synthesis Resource Utilization by Entity
-  8. State Machine - |uart_wrapper|uart_state
-  9. State Machine - |uart_wrapper|uart_rx:uart_rx_i|rx_state
- 10. State Machine - |uart_wrapper|uart_tx:uart_tx_i|tx_state
- 11. Registers Removed During Synthesis
+  8. State Machine - |uart_wrapper|uart_rx:uart_rx_i|rx_state
+  9. State Machine - |uart_wrapper|uart_tx:uart_tx_i|tx_state
+ 10. Registers Removed During Synthesis
+ 11. Removed Registers Triggering Further Register Optimizations
  12. General Register Statistics
  13. Inverted Register Statistics
  14. Multiplexer Restructuring Statistics (Restructuring Performed)
  15. Parameter Settings for User Entity Instance: Top-level Entity: |uart_wrapper
  16. Parameter Settings for User Entity Instance: uart_tx:uart_tx_i
  17. Parameter Settings for User Entity Instance: uart_rx:uart_rx_i
- 18. Post-Synthesis Netlist Statistics for Top Partition
- 19. Elapsed Time Per Partition
- 20. Analysis & Synthesis Messages
+ 18. Port Connectivity Checks: "uart_rx:uart_rx_i"
+ 19. Post-Synthesis Netlist Statistics for Top Partition
+ 20. Elapsed Time Per Partition
+ 21. Analysis & Synthesis Messages
 
 
 
@@ -51,15 +52,15 @@ refer to the applicable agreement for further details.
 +----------------------------------------------------------------------------------+
 ; Analysis & Synthesis Summary                                                     ;
 +------------------------------------+---------------------------------------------+
-; Analysis & Synthesis Status        ; Successful - Mon Sep 07 11:50:49 2020       ;
+; Analysis & Synthesis Status        ; Successful - Mon Sep 07 12:26:58 2020       ;
 ; Quartus Prime Version              ; 17.1.0 Build 590 10/25/2017 SJ Lite Edition ;
 ; Revision Name                      ; uart                                        ;
 ; Top-level Entity Name              ; uart_wrapper                                ;
 ; Family                             ; Cyclone IV E                                ;
-; Total logic elements               ; 343                                         ;
-;     Total combinational functions  ; 340                                         ;
-;     Dedicated logic registers      ; 193                                         ;
-; Total registers                    ; 193                                         ;
+; Total logic elements               ; 221                                         ;
+;     Total combinational functions  ; 221                                         ;
+;     Dedicated logic registers      ; 137                                         ;
+; Total registers                    ; 137                                         ;
 ; Total pins                         ; 4                                           ;
 ; Total virtual pins                 ; 0                                           ;
 ; Total memory bits                  ; 0                                           ;
@@ -187,20 +188,20 @@ refer to the applicable agreement for further details.
 +---------------------------------------------+-----------+
 ; Resource                                    ; Usage     ;
 +---------------------------------------------+-----------+
-; Estimated Total logic elements              ; 343       ;
+; Estimated Total logic elements              ; 221       ;
 ;                                             ;           ;
-; Total combinational functions               ; 340       ;
+; Total combinational functions               ; 221       ;
 ; Logic element usage by number of LUT inputs ;           ;
-;     -- 4 input functions                    ; 152       ;
-;     -- 3 input functions                    ; 19        ;
-;     -- <=2 input functions                  ; 169       ;
+;     -- 4 input functions                    ; 82        ;
+;     -- 3 input functions                    ; 5         ;
+;     -- <=2 input functions                  ; 134       ;
 ;                                             ;           ;
 ; Logic elements by mode                      ;           ;
-;     -- normal mode                          ; 185       ;
-;     -- arithmetic mode                      ; 155       ;
+;     -- normal mode                          ; 97        ;
+;     -- arithmetic mode                      ; 124       ;
 ;                                             ;           ;
-; Total registers                             ; 193       ;
-;     -- Dedicated logic registers            ; 193       ;
+; Total registers                             ; 137       ;
+;     -- Dedicated logic registers            ; 137       ;
 ;     -- I/O registers                        ; 0         ;
 ;                                             ;           ;
 ; I/O pins                                    ; 4         ;
@@ -208,9 +209,9 @@ refer to the applicable agreement for further details.
 ; Embedded Multiplier 9-bit elements          ; 0         ;
 ;                                             ;           ;
 ; Maximum fan-out node                        ; clk~input ;
-; Maximum fan-out                             ; 193       ;
-; Total fan-out                               ; 1675      ;
-; Average fan-out                             ; 3.10      ;
+; Maximum fan-out                             ; 137       ;
+; Total fan-out                               ; 1117      ;
+; Average fan-out                             ; 3.05      ;
 +---------------------------------------------+-----------+
 
 
@@ -219,23 +220,11 @@ refer to the applicable agreement for further details.
 +----------------------------+---------------------+---------------------------+-------------+--------------+---------+-----------+------+--------------+---------------------------------+--------------+--------------+
 ; Compilation Hierarchy Node ; Combinational ALUTs ; Dedicated Logic Registers ; Memory Bits ; DSP Elements ; DSP 9x9 ; DSP 18x18 ; Pins ; Virtual Pins ; Full Hierarchy Name             ; Entity Name  ; Library Name ;
 +----------------------------+---------------------+---------------------------+-------------+--------------+---------+-----------+------+--------------+---------------------------------+--------------+--------------+
-; |uart_wrapper              ; 340 (170)           ; 193 (77)                  ; 0           ; 0            ; 0       ; 0         ; 4    ; 0            ; |uart_wrapper                   ; uart_wrapper ; work         ;
-;    |uart_rx:uart_rx_i|     ; 114 (114)           ; 78 (78)                   ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |uart_wrapper|uart_rx:uart_rx_i ; uart_rx      ; work         ;
-;    |uart_tx:uart_tx_i|     ; 56 (56)             ; 38 (38)                   ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |uart_wrapper|uart_tx:uart_tx_i ; uart_tx      ; work         ;
+; |uart_wrapper              ; 221 (125)           ; 137 (67)                  ; 0           ; 0            ; 0       ; 0         ; 4    ; 0            ; |uart_wrapper                   ; uart_wrapper ; work         ;
+;    |uart_rx:uart_rx_i|     ; 44 (44)             ; 32 (32)                   ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |uart_wrapper|uart_rx:uart_rx_i ; uart_rx      ; work         ;
+;    |uart_tx:uart_tx_i|     ; 52 (52)             ; 38 (38)                   ; 0           ; 0            ; 0       ; 0         ; 0    ; 0            ; |uart_wrapper|uart_tx:uart_tx_i ; uart_tx      ; work         ;
 +----------------------------+---------------------+---------------------------+-------------+--------------+---------+-----------+------+--------------+---------------------------------+--------------+--------------+
 Note: For table entries with two numbers listed, the numbers in parentheses indicate the number of resources of the given type used by the specific entity alone. The numbers listed outside of parentheses indicate the total resources of the given type used by the specific entity and all of its sub-entities in the hierarchy.
-
-
-Encoding Type:  One-Hot
-+------------------------------------------------------------------------------------------+
-; State Machine - |uart_wrapper|uart_state                                                 ;
-+----------------------+---------------------+----------------------+----------------------+
-; Name                 ; uart_state.UART_REC ; uart_state.UART_SEND ; uart_state.UART_IDLE ;
-+----------------------+---------------------+----------------------+----------------------+
-; uart_state.UART_IDLE ; 0                   ; 0                    ; 0                    ;
-; uart_state.UART_SEND ; 0                   ; 1                    ; 1                    ;
-; uart_state.UART_REC  ; 1                   ; 0                    ; 1                    ;
-+----------------------+---------------------+----------------------+----------------------+
 
 
 Encoding Type:  One-Hot
@@ -270,6 +259,7 @@ Encoding Type:  One-Hot
 +----------------------------------------+-------------------------------------------+
 ; Register name                          ; Reason for Removal                        ;
 +----------------------------------------+-------------------------------------------+
+; tx_data[0,1,6,7]                       ; Stuck at GND due to stuck port data_in    ;
 ; uart_tx:uart_tx_i|clk_cnt[31]          ; Merged with uart_rx:uart_rx_i|clk_cnt[31] ;
 ; uart_tx:uart_tx_i|clk_cnt[30]          ; Merged with uart_rx:uart_rx_i|clk_cnt[30] ;
 ; uart_tx:uart_tx_i|clk_cnt[29]          ; Merged with uart_rx:uart_rx_i|clk_cnt[29] ;
@@ -302,8 +292,25 @@ Encoding Type:  One-Hot
 ; uart_tx:uart_tx_i|clk_cnt[5]           ; Merged with uart_rx:uart_rx_i|clk_cnt[5]  ;
 ; uart_tx:uart_tx_i|clk_cnt[4]           ; Merged with uart_rx:uart_rx_i|clk_cnt[4]  ;
 ; uart_tx:uart_tx_i|clk_cnt[0]           ; Merged with uart_rx:uart_rx_i|clk_cnt[0]  ;
-; Total Number of Removed Registers = 32 ;                                           ;
+; tx_data[3..5]                          ; Merged with tx_data[2]                    ;
+; rx_data_ready                          ; Lost fanout                               ;
+; uart_rx:uart_rx_i|bit_cnt[0..31]       ; Lost fanout                               ;
+; uart_rx:uart_rx_i|rx_state.RX_IDLE     ; Lost fanout                               ;
+; uart_rx:uart_rx_i|rx_state.RX_START    ; Lost fanout                               ;
+; uart_rx:uart_rx_i|rx_state.RX_REC_DATA ; Lost fanout                               ;
+; uart_rx:uart_rx_i|rx_state.RX_STOP     ; Lost fanout                               ;
+; uart_rx:uart_rx_i|rx_state.RX_DATA     ; Lost fanout                               ;
+; Total Number of Removed Registers = 77 ;                                           ;
 +----------------------------------------+-------------------------------------------+
+
+
++--------------------------------------------------------------------------------------------+
+; Removed Registers Triggering Further Register Optimizations                                ;
++------------------------------+--------------------+----------------------------------------+
+; Register name                ; Reason for Removal ; Registers Removed due to This Register ;
++------------------------------+--------------------+----------------------------------------+
+; uart_rx:uart_rx_i|bit_cnt[0] ; Lost Fanouts       ; uart_rx:uart_rx_i|rx_state.RX_REC_DATA ;
++------------------------------+--------------------+----------------------------------------+
 
 
 +------------------------------------------------------+
@@ -311,12 +318,12 @@ Encoding Type:  One-Hot
 +----------------------------------------------+-------+
 ; Statistic                                    ; Value ;
 +----------------------------------------------+-------+
-; Total registers                              ; 193   ;
+; Total registers                              ; 137   ;
 ; Number of registers using Synchronous Clear  ; 96    ;
 ; Number of registers using Synchronous Load   ; 0     ;
-; Number of registers using Asynchronous Clear ; 87    ;
+; Number of registers using Asynchronous Clear ; 71    ;
 ; Number of registers using Asynchronous Load  ; 0     ;
-; Number of registers using Clock Enable       ; 105   ;
+; Number of registers using Clock Enable       ; 64    ;
 ; Number of registers using Preset             ; 0     ;
 +----------------------------------------------+-------+
 
@@ -336,11 +343,10 @@ Encoding Type:  One-Hot
 +--------------------+-----------+---------------+----------------------+------------------------+------------+---------------------------------------------+
 ; Multiplexer Inputs ; Bus Width ; Baseline Area ; Area if Restructured ; Saving if Restructured ; Registered ; Example Multiplexer Output                  ;
 +--------------------+-----------+---------------+----------------------+------------------------+------------+---------------------------------------------+
-; 3:1                ; 32 bits   ; 64 LEs        ; 32 LEs               ; 32 LEs                 ; Yes        ; |uart_wrapper|tx_cnt[22]                    ;
-; 3:1                ; 32 bits   ; 64 LEs        ; 32 LEs               ; 32 LEs                 ; Yes        ; |uart_wrapper|uart_rx:uart_rx_i|clk_cnt[24] ;
-; 4:1                ; 32 bits   ; 64 LEs        ; 32 LEs               ; 32 LEs                 ; Yes        ; |uart_wrapper|uart_rx:uart_rx_i|bit_cnt[2]  ;
-; 4:1                ; 32 bits   ; 64 LEs        ; 32 LEs               ; 32 LEs                 ; Yes        ; |uart_wrapper|uart_tx:uart_tx_i|bit_cnt[24] ;
-; 4:1                ; 4 bits    ; 8 LEs         ; 4 LEs                ; 4 LEs                  ; Yes        ; |uart_wrapper|tx_data[5]                    ;
+; 3:1                ; 32 bits   ; 64 LEs        ; 32 LEs               ; 32 LEs                 ; Yes        ; |uart_wrapper|uart_rx:uart_rx_i|clk_cnt[17] ;
+; 3:1                ; 32 bits   ; 64 LEs        ; 32 LEs               ; 32 LEs                 ; Yes        ; |uart_wrapper|tx_cnt[16]                    ;
+; 4:1                ; 32 bits   ; 64 LEs        ; 32 LEs               ; 32 LEs                 ; Yes        ; |uart_wrapper|uart_rx:uart_rx_i|bit_cnt[16] ;
+; 4:1                ; 32 bits   ; 64 LEs        ; 32 LEs               ; 32 LEs                 ; Yes        ; |uart_wrapper|uart_tx:uart_tx_i|bit_cnt[16] ;
 +--------------------+-----------+---------------+----------------------+------------------------+------------+---------------------------------------------+
 
 
@@ -377,30 +383,40 @@ Note: In order to hide this table in the UI and the text report file, please set
 Note: In order to hide this table in the UI and the text report file, please set the "Show Parameter Settings in Synthesis Report" option in "Analysis and Synthesis Settings -> More Settings" to "Off".
 
 
++------------------------------------------------------------------------------------------------------------------------+
+; Port Connectivity Checks: "uart_rx:uart_rx_i"                                                                          ;
++--------------+--------+----------+-------------------------------------------------------------------------------------+
+; Port         ; Type   ; Severity ; Details                                                                             ;
++--------------+--------+----------+-------------------------------------------------------------------------------------+
+; data_out_vld ; Output ; Info     ; Connected to dangling logic. Logic that only feeds a dangling port will be removed. ;
+; data_out     ; Output ; Info     ; Connected to dangling logic. Logic that only feeds a dangling port will be removed. ;
++--------------+--------+----------+-------------------------------------------------------------------------------------+
+
+
 +-----------------------------------------------------+
 ; Post-Synthesis Netlist Statistics for Top Partition ;
 +-----------------------+-----------------------------+
 ; Type                  ; Count                       ;
 +-----------------------+-----------------------------+
 ; boundary_port         ; 4                           ;
-; cycloneiii_ff         ; 193                         ;
-;     CLR               ; 55                          ;
-;     ENA               ; 9                           ;
+; cycloneiii_ff         ; 137                         ;
+;     CLR               ; 7                           ;
+;     CLR SCLR          ; 32                          ;
 ;     ENA CLR           ; 32                          ;
-;     ENA SCLR          ; 64                          ;
+;     ENA SCLR          ; 32                          ;
 ;     SCLR              ; 32                          ;
-;     plain             ; 1                           ;
-; cycloneiii_lcell_comb ; 341                         ;
-;     arith             ; 155                         ;
-;         2 data inputs ; 155                         ;
-;     normal            ; 186                         ;
-;         1 data inputs ; 6                           ;
-;         2 data inputs ; 9                           ;
-;         3 data inputs ; 19                          ;
-;         4 data inputs ; 152                         ;
+;     plain             ; 2                           ;
+; cycloneiii_lcell_comb ; 222                         ;
+;     arith             ; 124                         ;
+;         2 data inputs ; 124                         ;
+;     normal            ; 98                          ;
+;         1 data inputs ; 5                           ;
+;         2 data inputs ; 6                           ;
+;         3 data inputs ; 5                           ;
+;         4 data inputs ; 82                          ;
 ;                       ;                             ;
 ; Max LUT depth         ; 6.00                        ;
-; Average LUT depth     ; 4.02                        ;
+; Average LUT depth     ; 3.82                        ;
 +-----------------------+-----------------------------+
 
 
@@ -419,7 +435,7 @@ Note: In order to hide this table in the UI and the text report file, please set
 Info: *******************************************************************
 Info: Running Quartus Prime Analysis & Synthesis
     Info: Version 17.1.0 Build 590 10/25/2017 SJ Lite Edition
-    Info: Processing started: Mon Sep 07 11:50:39 2020
+    Info: Processing started: Mon Sep 07 12:26:48 2020
 Info: Command: quartus_map --read_settings_files=on --write_settings_files=off uart -c uart
 Warning (18236): Number of processors has not been specified which may cause overloading on shared machines.  Set the global assignment NUM_PARALLEL_PROCESSORS in your QSF to an appropriate value for best performance.
 Info (20030): Parallel compilation is enabled and will use 6 of the 6 processors detected
@@ -433,6 +449,8 @@ Info (12021): Found 2 design units, including 1 entities, in source file /users/
     Info (12022): Found design unit 1: uart_rx-rtl File: C:/Users/yan/Documents/alinx_ax301/uart/src/uart_rx.vhd Line: 38
     Info (12023): Found entity 1: uart_rx File: C:/Users/yan/Documents/alinx_ax301/uart/src/uart_rx.vhd Line: 22
 Info (12127): Elaborating entity "uart_wrapper" for the top level hierarchy
+Warning (10036): Verilog HDL or VHDL warning at uart_wrapper.vhd(20): object "rx_data_vld" assigned a value but never read File: C:/Users/yan/Documents/alinx_ax301/uart/src/uart_wrapper.vhd Line: 20
+Warning (10036): Verilog HDL or VHDL warning at uart_wrapper.vhd(21): object "rx_data" assigned a value but never read File: C:/Users/yan/Documents/alinx_ax301/uart/src/uart_wrapper.vhd Line: 21
 Info (12128): Elaborating entity "uart_tx" for hierarchy "uart_tx:uart_tx_i" File: C:/Users/yan/Documents/alinx_ax301/uart/src/uart_wrapper.vhd Line: 29
 Info (12128): Elaborating entity "uart_rx" for hierarchy "uart_rx:uart_rx_i" File: C:/Users/yan/Documents/alinx_ax301/uart/src/uart_wrapper.vhd Line: 44
 Info (13000): Registers with preset signals will power-up high File: C:/Users/yan/Documents/alinx_ax301/uart/src/uart_tx.vhd Line: 34
@@ -440,15 +458,18 @@ Info (13003): DEV_CLRn pin will set, and not reset, register with preset signal 
 Info (286030): Timing-Driven Synthesis is running
 Critical Warning (18061): Ignored Power-Up Level option on the following registers
     Critical Warning (18010): Register uart_tx:uart_tx_i|data_out will power up to High File: C:/Users/yan/Documents/alinx_ax301/uart/src/uart_tx.vhd Line: 34
+Info (17049): 38 registers lost all their fanouts during netlist optimizations.
 Info (16010): Generating hard_block partition "hard_block:auto_generated_inst"
     Info (16011): Adding 0 node(s), including 0 DDIO, 0 PLL, 0 transceiver and 0 LCELL
-Info (21057): Implemented 347 device resources after synthesis - the final resource count might be different
+Warning (21074): Design contains 1 input pin(s) that do not drive logic
+    Warning (15610): No output dependent on input pin "datain" File: C:/Users/yan/Documents/alinx_ax301/uart/src/uart_wrapper.vhd Line: 13
+Info (21057): Implemented 225 device resources after synthesis - the final resource count might be different
     Info (21058): Implemented 3 input pins
     Info (21059): Implemented 1 output pins
-    Info (21061): Implemented 343 logic cells
-Info: Quartus Prime Analysis & Synthesis was successful. 0 errors, 3 warnings
-    Info: Peak virtual memory: 4808 megabytes
-    Info: Processing ended: Mon Sep 07 11:50:49 2020
+    Info (21061): Implemented 221 logic cells
+Info: Quartus Prime Analysis & Synthesis was successful. 0 errors, 7 warnings
+    Info: Peak virtual memory: 4804 megabytes
+    Info: Processing ended: Mon Sep 07 12:26:58 2020
     Info: Elapsed time: 00:00:10
     Info: Total CPU time (on all processors): 00:00:19
 

@@ -21,7 +21,7 @@ architecture rtl of uart_wrapper is
 	signal tx_data, rx_data : std_logic_vector(7 downto 0) := (others => '0');
 	signal tx_cnt, wait_cnt: unsigned(31 downto 0) := (others => '0');
 	
-	type UART_STATE_T is (UART_IDLE, UART_SEND, UART_REC);
+	type UART_STATE_T is (UART_IDLE, UART_SEND);
 	signal uart_state : UART_STATE_T := UART_IDLE;
 	
 	begin 
@@ -68,30 +68,23 @@ architecture rtl of uart_wrapper is
 				case uart_state is 
 				
 					when UART_IDLE => 
-						uart_state <= UART_SEND;
+						wait_cnt <= wait_cnt + 1;
+						
+						if wait_cnt > clk_freq * 1000000 then 
+							uart_state <= UART_SEND;
+						end if;
 					when UART_SEND => 
 						wait_cnt <= (others => '0');
-						tx_data <= x"5A"; 
+						tx_data <= x"3C"; 
 						
-						if (tx_data_vld = '1' and tx_data_ready = '1' and tx_cnt < 12) then 
+						if (tx_data_vld = '1' and tx_data_ready = '1' and tx_cnt < 3) then 
 							tx_cnt <= tx_cnt + 1;
 						elsif tx_data_vld = '1' and tx_data_ready = '1' then 
 							tx_cnt <= (others => '0');
 							tx_data_vld <= '0';
-							uart_state <= UART_REC;
+							uart_state <= UART_IDLE;
 						elsif tx_data_vld = '0' then 
 							tx_data_vld <= '1';
-						end if;
-					when UART_REC => 
-						wait_cnt <= wait_cnt + 1;
-						
-						if rx_data_vld = '1' then 
-							tx_data_vld <= '1';
-							tx_data <= rx_data;
-						elsif tx_data_vld = '1' and tx_data_ready = '1' then 
-							tx_data_vld <= '0';
-						elsif wait_cnt > clk_freq * 1000000 then 
-							uart_state <= UART_SEND;
 						end if;
 					when others => 
 						uart_state <= UART_IDLE;
