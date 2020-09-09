@@ -47,7 +47,6 @@ signal tx_state : TX_STATE_T := TX_IDLE;
 
 begin 
 
-	-- clk_cnt only increases in the 'TX_SEND_DATA' state.
 	p_clock_count: process (clk, rst)
 		begin
 			if rising_edge(clk) then 
@@ -55,7 +54,7 @@ begin
 					clk_cnt <= 0;
 				elsif clk_cnt = CLK_CYCLE - 1 then 
 					clk_cnt <= 0;
-				else
+				elsif tx_state /= TX_IDLE then
 					clk_cnt <= clk_cnt + 1;
 				end if;
 			end if;
